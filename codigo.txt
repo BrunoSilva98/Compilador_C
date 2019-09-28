@@ -1,0 +1,44 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+
+main()
+
+{
+	int a[10], op, i;
+	
+    srand(time(NULL));
+    
+    for(i=0; i<10; i++)
+     a[i] = rand() % 51;
+     
+          
+     do {
+       printf("\n\nEscolha a opcao:\n");
+       printf("1 para mostrar o vetor na ordem gerada.\n");
+       printf("2 para mostrar o vetor na ordem inversa.\n");
+       printf("3 para encerrar\n");
+       printf("Opcao: ");
+       scanf("%d", &op );
+            
+       switch (op)
+       {
+       	 case (1): {
+       	 	         for(i=0; i<10; i++)
+       	 	          printf("\n%d", a[i]);
+				break;
+		        	}
+		        	
+       	 case  (2): {
+       	 	          for(i=9; i>=0; i--)
+       	 	           printf("\n%d", a[i]);
+				break;
+			        }
+			        
+		 case (3):
+		           break;	        
+	   }
+      
+	  }while(op != 3);
+	  
+}
