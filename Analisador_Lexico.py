@@ -5,7 +5,7 @@ arq = open(r'C:\Users\bruno\Desktop\Projetos\Compilador\codigo.txt', 'r')
 texto = arq.readlines()
 arq.close()
 
-ListaCharEspecial = [",", ")", "(", ";", "=", "*", "+", "-", "{", "}", ">", "<", "[", "]", r"\ ", "/", "%", "!", "#", "|", "&", '"']
+ListaCharEspecial = [",", ")", "(", ";", "=", "*", "+", "-", "{", "}", ">", "<", "[", "]", r"\ ", "/", "%", "!", "#", "|", "&", '"', ':']
 
 ListaKeys = ["main", "auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else", "enum", 
              "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short", "signed",
@@ -156,5 +156,5 @@ for txtentrada in texto:
             listaTokens.append([contLinhas, token, "Identificador"])
 
 
-print(tabulate(["Linha", "Token", "Simbolo"]))
+print(tabulate(listaTokens))
 
