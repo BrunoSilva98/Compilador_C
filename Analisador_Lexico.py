@@ -9,18 +9,18 @@ class AnalisadorLexico():
         self.codigo.close()
         self.contLinhas = 0
         self.ListaCharEspecial = [",", ")", "(", ";", "=", "*", "+", "-", "{", "}", ">", 
-                                "<", "[", "]", r"\ ", "/", "%", "!", "#", "|", "&", '"', ':']
+                                "<", "[", "]", r"\ ", "/", "%", "!", "#", "|", "&", '"', ':', '.', "'"]
 
         self.ListaKeys = ["main", "auto", "break", "case", "char", "const", "continue", "default",
                         "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", 
                         "int", "long", "register", "return", "short", "signed", "sizeof", "static", 
                         "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", 
-                        "while", "include"]    
+                        "while", "include", "null"]    
 
         self.ListaNumerica = ['0','1', '2','3','4','5','6','7','8','9']
 
         self.ListaLetras = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-                            'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+                            'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '_']
         
         self.listaTokens = list()
 
@@ -54,8 +54,8 @@ class AnalisadorLexico():
                     self.char+=1
                 self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
 
-            elif (token == '"'): #Verifica caso de string, está salvando a string assim como aspa, pode ser separado depois
-                while(linha[self.char] != '"'):
+            elif ((token == '"')) or (token == "'"): #Verifica caso de string, está salvando a string assim como aspa, pode ser separado depois
+                while((linha[self.char] != '"') and (linha[self.char] != "'")):
                     token = token + linha[self.char]
                     self.char += 1
                 token = token + linha[self.char]
@@ -134,7 +134,7 @@ class AnalisadorLexico():
         token = ""
         if (linha[self.char] in self.ListaLetras):
             
-            while((linha[self.char] in self.ListaLetras) or (linha[self.char] in self.ListaNumerica)):
+            while((self.char < len(linha)) and ((linha[self.char] in self.ListaLetras) or (linha[self.char] in self.ListaNumerica))):
                 token = token + linha[self.char]
                 self.char += 1
             
