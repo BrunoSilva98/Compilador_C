@@ -110,12 +110,25 @@ class AnalisadorLexico():
                     self.char += 1
                 self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
             
-            else:
+            else: #Qualquer outro caractere especial
                 self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
-            return True
-                
+            return True                
         return False
+        
+    def verificaPalavraChave(self, linha): #Verifica se é palavra chave ou identificador
+        token = ""
+        if (linha[self.char] in self.ListaLetras):
             
+            while((linha[self.char] in self.ListaLetras) or (linha[self.char] in self.ListaNumerica)):
+                token = token + linha[self.char]
+                self.char += 1
+            
+            if (token in self.ListaKeys):
+                self.listaTokens.append([self.contLinhas, token, "Palavra Reservada"])
+            else:
+                self.listaTokens.append([self.contLinhas, token, "Identificador"])
+            return True
+        return False
 
     def analiseLexica(self):
         for linha in self.fonte:
@@ -133,18 +146,11 @@ class AnalisadorLexico():
                         if (self.verificaDiretivaComentario(linha)):
                             break
                         
-                        if (self.verificaCasoEspecial):
+                        if (self.verificaCasoEspecial(linha)):
                             break
 
-                        elif txtentrada[i] in ListaLetras:
-                            while((txtentrada[i] in ListaLetras) or (txtentrada[i] in ListaNumerica)):
-                                token = token + txtentrada[i]
-                                i += 1
-
-                            if (token in ListaKeys):
-                                listaTokens.append([contLinhas, token, "Palavra Reservada"])
-                            else:
-                                listaTokens.append([contLinhas, token, "Identificador"])
+                        if (self.verificaPalavraChave(linha)):
+                            break
 
                         elif (txtentrada[i] in ListaNumerica):
                             while(txtentrada[i] in ListaNumerica):
@@ -157,7 +163,7 @@ class AnalisadorLexico():
                             else:
                                 listaTokens.append([contLinhas, token, "Constante Numerica"])
                     else:
-                        char += 1
+                        self.char += 1
 
             except IndexError:
                 if (token in ListaKeys) or (token in ListaCharEspecial):
