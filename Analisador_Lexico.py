@@ -43,7 +43,7 @@ class AnalisadorLexico():
             return True
         return False
 
-    def verificaCasoEspecial(self, linha):
+    def verificaCharEspecial(self, linha):
         if(linha[self.char] in self.ListaCharEspecial):
             token = linha[self.char]
             self.char += 1
@@ -160,13 +160,13 @@ class AnalisadorLexico():
                     if (self.verificaDiretivaComentario(linha)):
                         break
                     
-                    elif (self.verificaCasoEspecial(linha)):
+                    if (self.verificaCharEspecial(linha)):
                         continue
 
-                    elif (self.verificaPalavraChave(linha)):
+                    if (self.verificaPalavraChave(linha)):
                         continue
                     
-                    elif (self.verificaNumeros(linha)):
+                    if (self.verificaNumeros(linha)):
                         continue
                 else:
                     self.char += 1
