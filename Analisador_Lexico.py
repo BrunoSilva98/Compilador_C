@@ -153,21 +153,21 @@ class AnalisadorLexico():
 
             while (self.char < len(linha)):
 
-                if ((linha[self.char] != '') or (linha[self.char] != ' ')):
+                if ((linha[self.char] != '') and (linha[self.char] != ' ')):
                     """Sempre que entrar em algum caso pode ser dado o break para seguir para o proximo 
                         caractere e economizar processamento"""
                     
                     if (self.verificaDiretivaComentario(linha)):
                         break
                     
-                    if (self.verificaCasoEspecial(linha)):
-                        break
+                    elif (self.verificaCasoEspecial(linha)):
+                        continue
 
-                    if (self.verificaPalavraChave(linha)):
-                        break
+                    elif (self.verificaPalavraChave(linha)):
+                        continue
                     
-                    if (self.verificaNumeros(linha)):
-                        break
+                    elif (self.verificaNumeros(linha)):
+                        continue
                 else:
                     self.char += 1
 
