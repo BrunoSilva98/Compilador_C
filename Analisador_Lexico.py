@@ -4,6 +4,7 @@ class AnalisadorLexico():
     
     def __init__(self, caminho):
         self.codigo = open(caminho, 'r')
+        self.char = 0
         self.fonte = self.codigo.readlines()
         self.codigo.close()
         self.contLinhas = 0
@@ -30,122 +31,110 @@ class AnalisadorLexico():
         texto = texto.lower()
         return texto
 
-    def verificaDiretivaComentario(self, linha, char):
-        if (linha[char] == '#'):
-            token = linha[char]
+    def verificaDiretivaComentario(self, linha):
+        if (linha[self.char] == '#'): #Verifica diretiva de pré-processamento
+            token = linha[self.char]
             self.listaTokens.append([self.contLinhas, token, "Diretiva"])
             return True
 
-        elif ((linha[char] == '/') and (linha[char+1] == '/')):
-            token = linha[char] + linha[char+1]
+        elif ((linha[self.char] == '/') and (linha[self.char+1] == '/')): #Verifica comentário na linha
+            token = linha[self.char] + linha[self.char+1]
             self.listaTokens.append([self.contLinhas, token, "Comentario"])
             return True
         return False
 
-    def verificaCasoEspecial(self, linha, char):
-        
+    def verificaCasoEspecial(self, linha):
+        if(linha[self.char] in self.ListaCharEspecial):
+            token = linha[self.char]
+            self.char += 1
+
+            if ((token == '>') or (token == '<')): #Verifica simbolo de > ou >=
+                if (linha[char] == '='):
+                    token = token + linha[char]
+                    self.char+=1
+                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
+
+            elif (token == '"'): #Verifica caso de string, está salvando a string assim como aspa, pode ser separado depois
+                while(linha[self.char] != '"'):
+                    token = token + linha[self.char]
+                    self.char += 1
+                token = token + linha[self.char]
+                self.listaTokens.append([self.contLinhas, token, "String"])
+                self.char += 1
+
+            elif (token == '|'): #Verifica o OR, que são dois símbolos ||
+                if (linha[self.char] == '|'):
+                    token = token + linha[self.char]
+                    self.char += 1
+                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
+
+            elif (token == '&'): #Verifica o AND, que são dois símbolos &&
+                if (linha[self.char] == '&'):
+                    token = token + linha[self.char]
+                    self.char += 1
+                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
+
+            elif (token == '='): #Verifica comparacao ou atribuicao
+                if (linha[self.char] == '='):
+                    token = token + linha[self.char]
+                    self.char += 1
+                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
+
+            elif (token == '!'): #Verica NOT ou Diferente
+                if (linha[self.char] == '='):
+                    token = token + linha[self.char]
+                    self.char += 1
+                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
+
+            elif (token == '+'): #Verifica ++ e +=
+                if ((linha[self.char] == '+') or (linha[self.char] == '=')):
+                    token = token + linha[self.char]
+                    self.char += 1
+                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
+            
+            elif (token == '-'): #Verifica -- e -=
+                if ((linha[self.char] == '-') or (linha[self.char] == '=')):
+                    token = token + linha[self.char]
+                    self.char += 1
+                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])            
+
+            elif (token == '/'): #Verifica /= ou /
+                if (linha[self.char] == '='):
+                    token = token + linha[self.char]
+                    self.char += 1
+                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
+
+            elif (token == '*'): #Verifica *= ou *
+                if (linha[self.char] == '='):
+                    token = token + linha[self.char]
+                    self.char += 1
+                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
+            
+            else:
+                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
+            return True
+                
+        return False
             
 
     def analiseLexica(self):
         for linha in self.fonte:
             linha = self.formataLinha(linha)
             self.contLinhas +=1
-            char = 0
+            self.char = 0
             try:
-                while char < len(linha):
+                while self.char < len(linha):
                     token = ""
 
-                    if ((linha[char] != '') or (linha[char] != ' ')):
-
-                        if (self.verificaDiretivaComentario):
+                    if ((linha[self.char] != '') or (linha[self.char] != ' ')):
+                        """Sempre que entrar em algum caso pode ser dado o break para seguir para o proximo 
+                            caractere e economizar processamento"""
+                        
+                        if (self.verificaDiretivaComentario(linha)):
                             break
-
-                        if txtentrada[i] in ListaCharEspecial:
-                            token = txtentrada[i]
-                            i += 1
-                            
-                            if token == '>' or token == '<':
-                                if (txtentrada[i] == '='):
-                                    token = token + txtentrada[i]
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-                                    i+=1
-                                else:
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-                            
-                            elif token == '"':
-                                while(txtentrada[i] != '"'):
-                                    token = token + txtentrada[i]
-                                    i+=1   
-                                token = token + txtentrada[i]
-                                listaTokens.append([contLinhas, token, "String"])
-                                i+=1
-
-                            elif token == '|':
-                                if (txtentrada[i] == '|'):
-                                    token = token + txtentrada[i]
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-                                    i+=1
-                                else:
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-
-                            elif token == '&':
-                                if (txtentrada[i] == '&'):
-                                    token = token + txtentrada[i]
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-                                    i+=1
-                                else:
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-
-                            elif token == '=':
-                                if (txtentrada[i] == '='):
-                                    token = token + txtentrada[i]
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-                                    i+=1
-                                else:
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-
-                            elif token == '!':
-                                if (txtentrada[i] == '='):
-                                    token = token + txtentrada[i]
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-                                    i+=1
-                                else:
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-
-                            elif token == '+':
-                                if (txtentrada[i] == '+' or txtentrada[i] == '='):
-                                    token = token + txtentrada[i]
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-                                    i+=1
-                                else:
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-
-                            elif token == '-':
-                                if (txtentrada[i] == '-' or txtentrada[i] == '='):
-                                    token = token + txtentrada[i]
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-                                    i+=1
-                                else:
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-
-                            elif token == '/':
-                                if (txtentrada[i] == '='):
-                                    token = token + txtentrada[i]
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-                                    i+=1
-                                else:
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-
-                            elif token == '*':
-                                if (txtentrada[i] == '='):
-                                    token = token + txtentrada[i]
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-                                    i+=1
-                                else:
-                                    listaTokens.append([contLinhas, token, "Simbolo Especial"])
-
-                            else:
-                                listaTokens.append([contLinhas, token, "Simbolo Especial"])
+                        
+                        if (self.verificaCasoEspecial):
+                            break
 
                         elif txtentrada[i] in ListaLetras:
                             while((txtentrada[i] in ListaLetras) or (txtentrada[i] in ListaNumerica)):
