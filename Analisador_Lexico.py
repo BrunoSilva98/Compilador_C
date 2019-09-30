@@ -49,8 +49,8 @@ class AnalisadorLexico():
             self.char += 1
 
             if ((token == '>') or (token == '<')): #Verifica simbolo de > ou >=
-                if (linha[char] == '='):
-                    token = token + linha[char]
+                if (linha[self.char] == '='):
+                    token = token + linha[self.char]
                     self.char+=1
                 self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
 
@@ -114,6 +114,21 @@ class AnalisadorLexico():
                 self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
             return True                
         return False
+    
+    def verificaNumeros(self, linha):
+        token = ""
+        if (linha[self.char] in self.ListaNumerica):
+            while(linha[self.char] in self.ListaNumerica):
+                token = token + linha[self.char]
+                self.char += 1
+
+            if (linha[self.char] in self.ListaLetras):
+                self.listaTokens.append([self.contLinhas, token, "Token nao reconhecido"])
+                self.char += 1
+            else:
+                self.listaTokens.append([self.contLinhas, token, "Constante Numerica"])
+            return True
+        return False
         
     def verificaPalavraChave(self, linha): #Verifica se é palavra chave ou identificador
         token = ""
@@ -135,42 +150,30 @@ class AnalisadorLexico():
             linha = self.formataLinha(linha)
             self.contLinhas +=1
             self.char = 0
-            try:
-                while self.char < len(linha):
-                    token = ""
 
-                    if ((linha[self.char] != '') or (linha[self.char] != ' ')):
-                        """Sempre que entrar em algum caso pode ser dado o break para seguir para o proximo 
-                            caractere e economizar processamento"""
-                        
-                        if (self.verificaDiretivaComentario(linha)):
-                            break
-                        
-                        if (self.verificaCasoEspecial(linha)):
-                            break
+            while (self.char < len(linha)):
 
-                        if (self.verificaPalavraChave(linha)):
-                            break
+                if ((linha[self.char] != '') or (linha[self.char] != ' ')):
+                    """Sempre que entrar em algum caso pode ser dado o break para seguir para o proximo 
+                        caractere e economizar processamento"""
+                    
+                    if (self.verificaDiretivaComentario(linha)):
+                        break
+                    
+                    if (self.verificaCasoEspecial(linha)):
+                        break
 
-                        elif (txtentrada[i] in ListaNumerica):
-                            while(txtentrada[i] in ListaNumerica):
-                                token = token + txtentrada[i]
-                                i += 1
-
-                            if txtentrada[i] in ListaLetras:
-                                listaTokens.append([contLinhas, token, "Token nao reconhecido"])
-                                i += 1
-                            else:
-                                listaTokens.append([contLinhas, token, "Constante Numerica"])
-                    else:
-                        self.char += 1
-
-            except IndexError:
-                if (token in ListaKeys) or (token in ListaCharEspecial):
-                    listaTokens.append([contLinhas, token, "Palavra Reservada"])
+                    if (self.verificaPalavraChave(linha)):
+                        break
+                    
+                    if (self.verificaNumeros(linha)):
+                        break
                 else:
-                    listaTokens.append([contLinhas, token, "Identificador"])
+                    self.char += 1
 
+if __name__ == "__main__":
+    analisadorLexico = AnalisadorLexico(r"C:\Users\bruno\Desktop\Projetos\Compilador\codigo.txt")
+    analisadorLexico.analiseLexica()
+    print(tabulate(analisadorLexico.listaTokens))
 
-print(tabulate(listaTokens))
 
