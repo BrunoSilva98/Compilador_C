@@ -177,3 +177,4 @@ if __name__ == "__main__":
     print(tabulate(analisadorLexico.listaTokens))
 
 
+#SEPARAR ASPAS DA STRING, CADA ASPA É UM TOKEN
