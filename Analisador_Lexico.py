@@ -54,12 +54,16 @@ class AnalisadorLexico():
                     self.char+=1
                 self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
 
-            elif ((token == '"')) or (token == "'"): #Verifica caso de string, está salvando a string assim como aspa, pode ser separado depois
+            elif ((token == '"')) or (token == "'"): #Verifica caso de string
+                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
+                token = ""
                 while((linha[self.char] != '"') and (linha[self.char] != "'")):
                     token = token + linha[self.char]
                     self.char += 1
+                self.listaTokens.append([self.contLinhas, token, "String"])    
+                token = ""
                 token = token + linha[self.char]
-                self.listaTokens.append([self.contLinhas, token, "String"])
+                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
                 self.char += 1
 
             elif (token == '|'): #Verifica o OR, que são dois símbolos ||
