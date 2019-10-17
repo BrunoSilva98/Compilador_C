@@ -179,6 +179,3 @@ if __name__ == "__main__":
     analisadorLexico = AnalisadorLexico(r"C:\Users\bruno\Desktop\Projetos\Compilador\codigo.txt")
     analisadorLexico.analiseLexica()
     print(tabulate(analisadorLexico.listaTokens))
-
-
-#SEPARAR ASPAS DA STRING, CADA ASPA É UM TOKEN

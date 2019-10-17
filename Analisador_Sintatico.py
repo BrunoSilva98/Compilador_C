@@ -1,3 +1,5 @@
+from Analisador_Lexico import AnalisadorLexico
+
 class Regra:
     def __init__(self, variavel):
         self.naoTerminal = variavel
@@ -10,9 +12,23 @@ class Regra:
         return self.terminais.get(chave)
 
 class AnalisadorSintatico:
-    def __init__(self):
+    def __init__(self, tokens):
         self.tabela = list()
+        self.cadeia = tokens
+        self.cadeia.append('$')
+        self.pilha = list()
     
+    def getNaoTerminal(self, variavel):
+        for regra in self.tabela:
+            if (regra.naoTerminal == variavel):
+                return regra
+
+    def empilha(self, regra):
+        self.pilha.insert(0, regra[::-1])
+
+    def desempilha(self):
+        return self.pilha.pop(0)
+        
     def criaTabelaRegras(self):
         E = Regra('E')
         E.addTerminal('id', 'TS')
@@ -47,14 +63,15 @@ class AnalisadorSintatico:
         F.addTerminal('num', 'num')
         F.addTerminal('(', '(E)')
         self.tabela.append(F)
-
-
-
-
+    
+    def analiseSintatica(self):
+        pass
 
 
 if __name__ == "__main__":
-    a = AnalisadorSintatico()
-    a.criaTabelaRegras()
+    analisadorLexico = AnalisadorLexico(r"C:\Users\bruno\Desktop\Projetos\Compilador\codigo.txt")    
+    analisadorLexico.analiseLexica()
 
-    
+    a = AnalisadorSintatico(analisadorLexico.listaTokens)
+    a.criaTabelaRegras()
+    a.pilha.append(a.getNaoTerminal('E'))
