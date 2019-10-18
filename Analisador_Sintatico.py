@@ -16,7 +16,7 @@ class AnalisadorSintatico:
     def __init__(self, tokens):
         self.tabela = list()
         self.cadeia = tokens
-        self.cadeia.append('$')
+        self.cadeia.append(['Fim','$','Identificador Final'])
         self.pilha = list()
         self.terminais = ['id','num','+','-','*','/','(',')','$']
         self.tabelaPrintar = [["Pilha", "Cadeia", "Regra"]]
@@ -27,7 +27,9 @@ class AnalisadorSintatico:
                 return regra
 
     def empilha(self, regra):
-        if regra in self.terminais:
+        if regra == '@':
+            pass
+        elif regra in self.terminais:
             self.pilha.append(regra)
         else:
             for elemento in regra[::-1]:
@@ -60,8 +62,8 @@ class AnalisadorSintatico:
         self.tabela.append(T)
 
         S = Regra('S')
-        S.addTerminal('+', 'TS')
-        S.addTerminal('-', 'TS')
+        S.addTerminal('+', '+TS')
+        S.addTerminal('-', '+TS')
         S.addTerminal(')', '@')
         S.addTerminal('$', '@')
         self.tabela.append(S)
@@ -93,7 +95,7 @@ class AnalisadorSintatico:
 
         while (topo != '$'):
             topo = self.pilha[len(self.pilha)-1]
-
+            topoCadeia = self.cadeia[0][1]
             if(topo in self.terminais):
                 if(topo == topoCadeia):
                     self.tabelaPrintar.append([list(self.pilha), self.printarCadeia(), 'RECONHECE'])
