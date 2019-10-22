@@ -63,7 +63,7 @@ class AnalisadorSintatico:
 
         S = Regra('S')
         S.addTerminal('+', '+TS')
-        S.addTerminal('-', '+TS')
+        S.addTerminal('-', '-TS')
         S.addTerminal(')', '@')
         S.addTerminal('$', '@')
         self.tabela.append(S)
