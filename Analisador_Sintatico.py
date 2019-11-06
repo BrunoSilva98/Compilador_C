@@ -19,7 +19,7 @@ class AnalisadorSintatico:
         self.cadeia.append(['Fim','$','Identificador Final'])
         self.pilha = list()
         self.terminais = ['id','num','+','-','*','/','(',')','$']
-        self.tabelaPrintar = [["Pilha", "Cadeia", "Regra"]]
+        self.tabelaPrintar = list()
 
     def getNaoTerminal(self, variavel):
         for regra in self.tabela:
@@ -116,7 +116,7 @@ class AnalisadorSintatico:
                 break
     
     def mostrarTabela(self):
-        print(tabulate(self.tabelaPrintar))
+        print(tabulate(self.tabelaPrintar, headers=["Pilha", "Cadeia", "Regra"]))
 
                 
 
