@@ -29,7 +29,7 @@ class Tradutor:
                 return contador + 1
             contador += 1
 
-    def setAssemblyDeclaracao(self, contador):
+    def setAssemblyAlocacao(self, contador):
         quantidadeVariaveis = 0
         while(self.tokens[contador][1] != ';'):
             if(self.tokens[contador][2] == "Identificador"):
@@ -38,6 +38,13 @@ class Tradutor:
             contador += 1
         self.traducao.append("AMEM " + str(quantidadeVariaveis))
         return contador + 1
+
+    def setAssemblyLiberacao(self):
+        self.traducao.append("DMEM " + str(len(self.enderecoIdentificadores)))
+    
+    def setAssemblyFinalizacao(self):
+        self.setAssemblyLiberacao()
+        self.traducao.append("PARA")
 
     def setAssemblyScanf(self, contador):
         self.traducao.append("LEIT")
@@ -55,7 +62,7 @@ class Tradutor:
         contador = self.setAssemblyMain()
         while contador < len(self.tokens):
             if (self.tokens[contador][1] == "int"):
-                contador = self.setAssemblyDeclaracao(contador)
+                contador = self.setAssemblyAlocacao(contador)
                 
             if (self.tokens[contador][1] == "scanf"):
                 self.setAssemblyScanf(contador)
