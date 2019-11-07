@@ -15,7 +15,7 @@ class AnalisadorLexico():
                         "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", 
                         "int", "long", "register", "return", "short", "signed", "sizeof", "static", 
                         "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", 
-                        "while", "include", "null"]    
+                        "while", "include", "null", "printf", "scanf"]    
 
         self.ListaNumerica = ['0','1', '2','3','4','5','6','7','8','9']
 

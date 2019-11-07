@@ -30,23 +30,36 @@ class Tradutor:
             contador += 1
 
     def setAssemblyDeclaracao(self, contador):
-        enderecoVariaveis = 0
         quantidadeVariaveis = 0
         while(self.tokens[contador][1] != ';'):
             if(self.tokens[contador][2] == "Identificador"):
-                self.enderecoIdentificadores.append([self.tokens[contador][1], enderecoVariaveis])
-                enderecoVariaveis += 1
+                self.enderecoIdentificadores.append(self.tokens[contador][1])
                 quantidadeVariaveis += 1
             contador += 1
         self.traducao.append("AMEM " + str(quantidadeVariaveis))
+        return contador + 1
+
+    def setAssemblyScanf(self, contador):
+        self.traducao.append("LEIT")
+        while(self.tokens[contador][1] != ';'):
+            if self.tokens[contador][2] == "Identificador":
+                try:
+                    endereco = self.enderecoIdentificadores.index(self.tokens[contador][1])
+                except ValueError:
+                    raise Exception("Identificador {0} inexistente".format(self.tokens[contador][1]))
+            contador += 1
+        self.traducao.append("ARMZ " + str(endereco))
         return contador + 1
 
     def code_parser(self):
         contador = self.setAssemblyMain()
         while contador < len(self.tokens):
             if (self.tokens[contador][1] == "int"):
-                self.setAssemblyDeclaracao(contador)
-                break
+                contador = self.setAssemblyDeclaracao(contador)
+                
+            if (self.tokens[contador][1] == "scanf"):
+                self.setAssemblyScanf(contador)
+            
             contador += 1
 
     def printAssembly(self):
