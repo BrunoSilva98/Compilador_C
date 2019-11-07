@@ -26,7 +26,7 @@ class Tradutor:
         while contador < len(self.tokens):
             if (self.tokens[contador][1] == "main"):
                 self.traducao.append("INPP")
-                return contador + 1
+                return contador
             contador += 1
 
     def setAssemblyAlocacao(self, contador):
@@ -37,7 +37,7 @@ class Tradutor:
                 quantidadeVariaveis += 1
             contador += 1
         self.traducao.append("AMEM " + str(quantidadeVariaveis))
-        return contador + 1
+        return contador
 
     def setAssemblyLiberacao(self):
         self.traducao.append("DMEM " + str(len(self.enderecoIdentificadores)))
@@ -45,10 +45,11 @@ class Tradutor:
     def setAssemblyFinalizacao(self):
         self.setAssemblyLiberacao()
         self.traducao.append("PARA")
+        return len(self.tokens)
 
     def setAssemblyScanf(self, contador):
         self.traducao.append("LEIT")
-        while(self.tokens[contador][1] != ';'):
+        while (self.tokens[contador][1] != ';'):
             if self.tokens[contador][2] == "Identificador":
                 try:
                     endereco = self.enderecoIdentificadores.index(self.tokens[contador][1])
@@ -56,7 +57,30 @@ class Tradutor:
                     raise Exception("Identificador {0} inexistente".format(self.tokens[contador][1]))
             contador += 1
         self.traducao.append("ARMZ " + str(endereco))
-        return contador + 1
+        return contador
+
+    def setAssemblyExpressao(self, contador, variavel_atribuindo=None):
+        pass
+
+    def setAssemblyAtribuicao(self, contador):
+        contadorExpressao = contador
+        variavel_atribuindo = self.tokens[contador][1]
+        contador += 2
+
+        while (self.tokens[contador][1] != ';'):
+            
+            if (self.tokens[contador][2] == "Identificador") and (self.tokens[contador+1][1] == ';'):
+                self.traducao.append("CRVL " + self.tokens[contador][1])
+                self.traducao.append("ARMZ " + variavel_atribuindo)
+
+            elif (self.tokens[contador][2] == "Constante Numerica") and (self.tokens[contador+1][1] == ';'):
+                self.traducao.append("CRCT " + self.tokens[contador][1])
+                self.traducao.append("ARMZ " + variavel_atribuindo)
+
+            elif (self.tokens[contador][2] == "Operador"):
+                self.setAssemblyExpressao(contadorExpressao, variavel_atribuindo)
+            contador += 1
+        return contador
 
     def code_parser(self):
         contador = self.setAssemblyMain()
@@ -65,8 +89,14 @@ class Tradutor:
                 contador = self.setAssemblyAlocacao(contador)
                 
             if (self.tokens[contador][1] == "scanf"):
-                self.setAssemblyScanf(contador)
+                contador = self.setAssemblyScanf(contador)
             
+            if (self.tokens[contador][2] == "Identificador") and (self.tokens[contador+1][1] == '='):
+                contador = self.setAssemblyAtribuicao(contador)
+            
+            if (contador >= len(self.tokens)) and (self.tokens[len(self.tokens) - 1][1] == '}'):
+                contador = self.setAssemblyFinalizacao()
+
             contador += 1
 
     def printAssembly(self):

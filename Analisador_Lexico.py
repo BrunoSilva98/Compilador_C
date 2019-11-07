@@ -94,25 +94,25 @@ class AnalisadorLexico():
                 if ((linha[self.char] == '+') or (linha[self.char] == '=')):
                     token = token + linha[self.char]
                     self.char += 1
-                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
+                self.listaTokens.append([self.contLinhas, token, "Operador"])
             
             elif (token == '-'): #Verifica -- e -=
                 if ((linha[self.char] == '-') or (linha[self.char] == '=')):
                     token = token + linha[self.char]
                     self.char += 1
-                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])            
+                self.listaTokens.append([self.contLinhas, token, "Operador"])            
 
             elif (token == '/'): #Verifica /= ou /
                 if (linha[self.char] == '='):
                     token = token + linha[self.char]
                     self.char += 1
-                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
+                self.listaTokens.append([self.contLinhas, token, "Operador"])
 
             elif (token == '*'): #Verifica *= ou *
                 if (linha[self.char] == '='):
                     token = token + linha[self.char]
                     self.char += 1
-                self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
+                self.listaTokens.append([self.contLinhas, token, "Operador"])
             
             else: #Qualquer outro caractere especial
                 self.listaTokens.append([self.contLinhas, token, "Simbolo Especial"])
