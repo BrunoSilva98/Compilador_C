@@ -59,28 +59,70 @@ class Tradutor:
         self.traducao.append("ARMZ " + str(endereco))
         return contador
 
-    def setAssemblyExpressao(self, contador, variavel_atribuindo=None):
-        pass
+    def verificaExpressaoMatematica(self, contador):
+        while (self.tokens[contador][1] != ';'):
+            if self.tokens[contador][2] == "Operador":
+                return True
+            contador += 1
+        return False
 
-    def setAssemblyAtribuicao(self, contador):
-        contadorExpressao = contador
-        variavel_atribuindo = self.tokens[contador][1]
-        contador += 2
+    def setAssemblyOperador(self, operador):
+        if (operador == '+'):
+            self.traducao.append("SOMA")
+        elif (operador == '-'):
+            self.traducao.append("SUBT")
+        elif (operador == '*'):
+            self.traducao.append("MULT")
+        elif (operador == '/'):
+            self.traducao.append("DIVI")        
+
+    def setAssemblyExpressao(self, contador):
+        operador = self.tokens[contador+1][1]
+        qtde_operandos = 0
 
         while (self.tokens[contador][1] != ';'):
             
-            if (self.tokens[contador][2] == "Identificador") and (self.tokens[contador+1][1] == ';'):
+            if (self.tokens[contador][2] == "Identificador"):
                 self.traducao.append("CRVL " + self.tokens[contador][1])
-                self.traducao.append("ARMZ " + variavel_atribuindo)
-
-            elif (self.tokens[contador][2] == "Constante Numerica") and (self.tokens[contador+1][1] == ';'):
+                qtde_operandos += 1
+            
+            elif (self.tokens[contador][2] == "Constante Numerica"):
                 self.traducao.append("CRCT " + self.tokens[contador][1])
-                self.traducao.append("ARMZ " + variavel_atribuindo)
+                qtde_operandos += 1
 
             elif (self.tokens[contador][2] == "Operador"):
-                self.setAssemblyExpressao(contadorExpressao, variavel_atribuindo)
+                if (qtde_operandos == 2):
+                    self.setAssemblyOperador(operador)
+                    qtde_operandos = 1
+                    operador = self.tokens[contador][1]
             contador += 1
+
+        if (qtde_operandos == 2):
+            self.setAssemblyOperador(operador)
+
         return contador
+
+    def setAssemblyAtribuicao(self, contador):
+        variavel_atribuindo = self.tokens[contador][1]
+        contador += 2
+        if (not self.verificaExpressaoMatematica(contador)):
+            while (self.tokens[contador][1] != ';'):
+                
+                if (self.tokens[contador][2] == "Identificador") and (self.tokens[contador+1][1] == ';'):
+                    self.traducao.append("CRVL " + self.tokens[contador][1])
+
+                elif (self.tokens[contador][2] == "Constante Numerica") and (self.tokens[contador+1][1] == ';'):
+                    self.traducao.append("CRCT " + self.tokens[contador][1])
+                contador += 1
+
+            self.traducao.append("ARMZ " + variavel_atribuindo)
+            return contador
+
+        else:
+            contador = self.setAssemblyExpressao(contador)
+            self.traducao.append("ARMZ " + variavel_atribuindo)
+            return contador
+
 
     def code_parser(self):
         contador = self.setAssemblyMain()
@@ -94,7 +136,7 @@ class Tradutor:
             if (self.tokens[contador][2] == "Identificador") and (self.tokens[contador+1][1] == '='):
                 contador = self.setAssemblyAtribuicao(contador)
             
-            if (contador >= len(self.tokens)) and (self.tokens[len(self.tokens) - 1][1] == '}'):
+            if (contador >= len(self.tokens)-1) and (self.tokens[len(self.tokens) - 1][1] == '}'):
                 contador = self.setAssemblyFinalizacao()
 
             contador += 1
