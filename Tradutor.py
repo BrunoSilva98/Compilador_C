@@ -8,6 +8,7 @@ class Tradutor:
         self.tokens = self.AnalisadorLexico.listaTokens
         self.traducao = list()
         self.enderecoIdentificadores = list()
+        self.operadores_logicos = ['>', '>=', '<', '<=', '&&', '||', '==', '!=']
 
     def setAssemblyMain(self):
         contador = 0
@@ -48,13 +49,18 @@ class Tradutor:
         return contador
 
     def verificaExpressaoMatematica(self, contador, condicao_parada=';'):
-        while (self.tokens[contador][1] != condicao_parada and contador < len(self.tokens)-1):
+        while ((self.tokens[contador][1] != condicao_parada) and\
+               (contador < len(self.tokens)-1) and\
+               (self.tokens[contador][1] not in self.operadores_logicos)):
+
             if self.tokens[contador][2] == "Operador":
                 return True
+
             contador += 1
+            
         return False
 
-    def setAssemblyOperador(self, operador):
+    def setAssemblyOperadorMatematico(self, operador):
         if (operador == '+'):
             self.traducao.append("SOMA")
         elif (operador == '-'):
@@ -62,13 +68,37 @@ class Tradutor:
         elif (operador == '*'):
             self.traducao.append("MULT")
         elif (operador == '/'):
-            self.traducao.append("DIVI")        
+            self.traducao.append("DIVI") 
+
+    def setAssemblyOperadorLogico(self, operador):
+        if (operador == '&&'):
+            self.traducao.append("CONJ")
+        elif (operador == '||'):
+            self.traducao.append("DISJ")
+        elif (operador == '<'):
+            self.traducao.append("CMME")
+        elif (operador == '>'):
+            self.traducao.append("CMMA")
+        elif (operador == '=='):
+            self.traducao.append("CMIG")
+        elif (operador == '!='):
+            self.traducao.append("CMDG")
+        elif (operador == '<='):
+            self.traducao.append("CMEG")
+        elif (operador == '>='):
+            self.traducao.append("CMAG")
+        elif (operador == '!'):
+            self.traducao.append("NEGA")
+
 
     def setAssemblyExpressao(self, contador, condicao_parada=None):
         operador = self.tokens[contador+1][1]
         qtde_operandos = 0
 
-        while (self.tokens[contador][1] != condicao_parada and self.tokens[contador][1] != ';'):
+        while ((self.tokens[contador][1] != condicao_parada) and\
+               (self.tokens[contador][1] != ';') and\
+               (self.tokens[contador][1] not in self.operadores_logicos)):
+
             if (self.tokens[contador][2] == "Identificador"):
                 self.traducao.append("CRVL " + self.tokens[contador][1])
                 qtde_operandos += 1
@@ -79,14 +109,50 @@ class Tradutor:
 
             elif (self.tokens[contador][2] == "Operador"):
                 if (qtde_operandos == 2):
-                    self.setAssemblyOperador(operador)
+                    self.setAssemblyOperadorMatematico(operador)
                     qtde_operandos = 1
                     operador = self.tokens[contador][1]
             contador += 1
 
         if (qtde_operandos == 2):
-            self.setAssemblyOperador(operador)
+            self.setAssemblyOperadorMatematico(operador)
 
+        return contador
+
+    def setAssemblyComparacao(self, contador, condicao_parada=None):
+        qtde_operandos = 0
+        contador2 = contador
+        linha_comparacao = self.tokens[contador][0]
+
+        while (self.tokens[contador2][1] not in self.operadores_logicos):
+            contador2 += 1
+        operador = self.tokens[contador2][1]
+
+        while ((self.tokens[contador][2] != "Identificador") and\
+               (self.tokens[contador][2] != "Constante Numerica")):
+            contador += 1
+
+        while (self.tokens[contador][0] == linha_comparacao):
+
+            if (self.verificaExpressaoMatematica(contador,'{')):
+                contador = self.setAssemblyExpressao(contador)
+                qtde_operandos += 1
+
+            elif (self.tokens[contador][2] == "Identificador"):
+                self.traducao.append("CRVL " + self.tokens[contador][1])
+                qtde_operandos += 1
+            
+            elif (self.tokens[contador][2] == "Constante Numerica"):
+                self.traducao.append("CRCT " + self.tokens[contador][1])
+                qtde_operandos += 1
+            
+            elif (self.tokens[contador][1] in self.operadores_logicos):
+                if (qtde_operandos == 2):
+                    self.setAssemblyOperadorLogico(operador)
+                    operador = self.tokens[contador][1]
+                    qtde_operandos = 1
+
+            contador += 1
         return contador
 
     def setAssemblyAtribuicao(self, contador):
@@ -143,10 +209,39 @@ class Tradutor:
             else:
                 self.traducao.append("IMPR")
                 return contador + 1
+    
+    def verificaFimWhile(self, contador):
+        linha_fim = 0
+        pilha_abertura = list()
 
-    def code_parser(self):
-        contador = self.setAssemblyMain()
-        while contador < len(self.tokens):
+        pilha_abertura.append(self.tokens[contador][1])
+        contador += 1
+
+        while (contador < len(self.tokens)-1):
+            if (self.tokens[contador][1] == '{'):
+                pilha_abertura.append(self.tokens[contador][1])
+            elif (self.tokens[contador][1] == '}'):
+                pilha_abertura.pop(0)
+                linha_fim = self.tokens[contador][0]
+
+            contador += 1
+
+            if (len(pilha_abertura) == 0):
+                return linha_fim
+
+    def setAssemblyWhile(self, contador):
+        self.traducao.append("L1 INICIO_WHILE")
+        contador = self.setAssemblyComparacao(contador)
+        fim_while = self.verificaFimWhile(contador)
+        self.traducao.append("DVSF L2")
+        contador = self.code_parser(contador, 2, fim_while)
+        self.traducao.append("L2 FIM_WHILE")
+        return contador
+
+    def code_parser(self, contador, index_cond_parada=1, condicao_parada=None):
+        while ((contador < len(self.tokens)) and\
+               (self.tokens[contador][index_cond_parada] != condicao_parada)):
+
             if (self.tokens[contador][1] == "int"):
                 contador = self.setAssemblyAlocacao(contador)
                 
@@ -159,10 +254,14 @@ class Tradutor:
             if (self.tokens[contador][1] == "printf"):
                 contador = self.setAssemblyPrintf(contador)
             
+            if (self.tokens[contador][1] == "while"):
+                contador = self.setAssemblyWhile(contador)
+            
             if (contador >= len(self.tokens)-1) and (self.tokens[len(self.tokens) - 1][1] == '}'):
                 contador = self.setAssemblyFinalizacao()
 
             contador += 1
+        return contador
 
     def printAssembly(self):
         for element in self.traducao:
@@ -171,7 +270,6 @@ class Tradutor:
     
 if __name__ == "__main__":
     assembly = Tradutor(r"C:\Users\bruno\Desktop\Projetos\Compilador\codigo.txt")
-    assembly.code_parser()
+    contador = assembly.setAssemblyMain()
+    assembly.code_parser(contador)
     assembly.printAssembly()
-
-        
