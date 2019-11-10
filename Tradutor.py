@@ -9,6 +9,7 @@ class Tradutor:
         self.traducao = list()
         self.enderecoIdentificadores = list()
         self.operadores_logicos = ['>', '>=', '<', '<=', '&&', '||', '==', '!=']
+        self.label_count = 1
 
     def setAssemblyMain(self):
         contador = 0
@@ -135,7 +136,7 @@ class Tradutor:
         while (self.tokens[contador][0] == linha_comparacao):
 
             if (self.verificaExpressaoMatematica(contador,'{')):
-                contador = self.setAssemblyExpressao(contador)
+                contador = self.setAssemblyExpressao(contador,'{')
                 qtde_operandos += 1
 
             elif (self.tokens[contador][2] == "Identificador"):
@@ -156,7 +157,7 @@ class Tradutor:
 
         if (qtde_operandos == 2):
             self.setAssemblyOperadorLogico(operador)
-            
+
         return contador
 
     def setAssemblyAtribuicao(self, contador):
@@ -234,12 +235,14 @@ class Tradutor:
                 return linha_fim
 
     def setAssemblyWhile(self, contador):
-        self.traducao.append("L1 INICIO_WHILE")
+        self.traducao.append("L" + str(self.label_count) + " INICIO_WHILE")
+        self.label_count += 1
         contador = self.setAssemblyComparacao(contador)
         fim_while = self.verificaFimWhile(contador)
         self.traducao.append("DVSF L2")
         contador = self.code_parser(contador, 0, fim_while)
-        self.traducao.append("L2 FIM_WHILE")
+        self.traducao.append("L" + str(self.label_count) + " FIM_WHILE")
+        self.label_count += 1
         return contador
 
     def code_parser(self, contador, index_cond_parada=1, condicao_parada=None):
