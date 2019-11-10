@@ -215,7 +215,7 @@ class Tradutor:
                 self.traducao.append("IMPR")
                 return contador + 1
     
-    def verificaFimWhile(self, contador):
+    def verificaFimBloco(self, contador):
         linha_fim = 0
         pilha_abertura = list()
 
@@ -224,15 +224,16 @@ class Tradutor:
 
         while (contador < len(self.tokens)-1):
             if (self.tokens[contador][1] == '{'):
-                pilha_abertura.append(self.tokens[contador][1])
+                pilha_abertura.insert(0, self.tokens[contador][1])
+            
             elif (self.tokens[contador][1] == '}'):
                 pilha_abertura.pop(0)
                 linha_fim = self.tokens[contador][0]
-
-            contador += 1
-
+            
             if (len(pilha_abertura) == 0):
                 return linha_fim
+
+            contador += 1
 
     def setAssemblyWhile(self, contador):
         self.traducao.append("L" + str(self.label_count) + " INICIO_WHILE")
@@ -240,12 +241,44 @@ class Tradutor:
         self.label_count += 1
         contador = self.setAssemblyComparacao(contador)
         index = len(self.traducao)
-        fim_while = self.verificaFimWhile(contador)
+        fim_while = self.verificaFimBloco(contador)
         contador = self.code_parser(contador, 0, fim_while)
         self.traducao.append("DSVS L" + str(label))
         self.traducao.append("L" + str(self.label_count) + " FIM_WHILE")
         self.traducao.insert(index, "DSVF L" + str(self.label_count))
         self.label_count += 1
+        return contador
+
+    def verificaElse(self, contador):
+        pilha = list()
+        pilha.append("if")
+        contador += 1
+
+        while(contador < len(self.tokens)-1):
+            if (self.tokens[contador][1] == "if"):
+                pilha.insert(0, self.tokens[contador][1])
+            
+            elif (self.tokens[contador][1] == "else"):
+                pilha.pop(0)
+            
+            if (len(pilha) == 0):
+                return True
+            
+            contador += 1
+
+        return False     
+
+    def setAssemblyIf(self, contador):
+        label = self.label_count
+        self.label_count += 1
+        contador = self.setAssemblyComparacao(contador)
+        index = len(self.traducao)
+
+        if (not self.verificaElse(contador)):
+            fim_if = self.verificaFimBloco(contador)
+            contador = self.code_parser(contador, 0, fim_if)
+            self.traducao.append("L" + str(label) + " Falso")
+            self.traducao.insert(index, "DSVF L" + str(label))
         return contador
 
     def code_parser(self, contador, index_cond_parada=1, condicao_parada=None):
@@ -266,6 +299,9 @@ class Tradutor:
             
             if (self.tokens[contador][1] == "while"):
                 contador = self.setAssemblyWhile(contador)
+
+            if (self.tokens[contador][1] == "if"):
+                contador = self.setAssemblyIf(contador)
             
             if (contador >= len(self.tokens)-1) and (self.tokens[len(self.tokens) - 1][1] == '}'):
                 contador = self.setAssemblyFinalizacao()
