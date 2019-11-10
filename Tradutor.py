@@ -1,6 +1,4 @@
 from Analisador_Lexico import AnalisadorLexico
-from tabulate import tabulate
-
 class Tradutor:
     def __init__(self, caminho):
         self.AnalisadorLexico = AnalisadorLexico(caminho)
@@ -263,9 +261,8 @@ class Tradutor:
             
             if (len(pilha) == 0):
                 return True
-            
+                
             contador += 1
-
         return False     
 
     def setAssemblyIf(self, contador):
@@ -273,12 +270,26 @@ class Tradutor:
         self.label_count += 1
         contador = self.setAssemblyComparacao(contador)
         index = len(self.traducao)
+        fim_if = self.verificaFimBloco(contador)
+        tem_else = self.verificaElse(contador)
 
-        if (not self.verificaElse(contador)):
-            fim_if = self.verificaFimBloco(contador)
-            contador = self.code_parser(contador, 0, fim_if)
-            self.traducao.append("L" + str(label) + " Falso")
+        contador = self.code_parser(contador, 0, fim_if)
+
+        if (not tem_else):
+            self.traducao.append("L" + str(label) + " FALSO")
             self.traducao.insert(index, "DSVF L" + str(label))
+
+        else:
+            self.traducao.insert(index, "DSVF L" + str(label))
+            self.traducao.append("DSVS L" + str(self.label_count))
+            self.traducao.append("L" + str(label) + " FALSO")
+            label = self.label_count
+            self.label_count += 1
+            contador += 2
+            fim_else = self.verificaFimBloco(contador)
+            contador = self.code_parser(contador, 0, fim_else)            
+            self.traducao.append("L" + str(label) + " FIM IF/ELSE")
+
         return contador
 
     def code_parser(self, contador, index_cond_parada=1, condicao_parada=None):
