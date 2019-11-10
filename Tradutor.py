@@ -57,7 +57,7 @@ class Tradutor:
                 return True
 
             contador += 1
-            
+
         return False
 
     def setAssemblyOperadorMatematico(self, operador):
@@ -153,6 +153,10 @@ class Tradutor:
                     qtde_operandos = 1
 
             contador += 1
+
+        if (qtde_operandos == 2):
+            self.setAssemblyOperadorLogico(operador)
+            
         return contador
 
     def setAssemblyAtribuicao(self, contador):
@@ -234,7 +238,7 @@ class Tradutor:
         contador = self.setAssemblyComparacao(contador)
         fim_while = self.verificaFimWhile(contador)
         self.traducao.append("DVSF L2")
-        contador = self.code_parser(contador, 2, fim_while)
+        contador = self.code_parser(contador, 0, fim_while)
         self.traducao.append("L2 FIM_WHILE")
         return contador
 
