@@ -147,7 +147,7 @@ class Tradutor:
                 self.traducao.append("CRCT " + self.tokens[contador][1])
                 qtde_operandos += 1
             
-            elif (self.tokens[contador][1] in self.operadores_logicos):
+            if (self.tokens[contador][1] in self.operadores_logicos):
                 if (qtde_operandos == 2):
                     self.setAssemblyOperadorLogico(operador)
                     operador = self.tokens[contador][1]
@@ -236,12 +236,15 @@ class Tradutor:
 
     def setAssemblyWhile(self, contador):
         self.traducao.append("L" + str(self.label_count) + " INICIO_WHILE")
+        label = self.label_count
         self.label_count += 1
         contador = self.setAssemblyComparacao(contador)
+        index = len(self.traducao)
         fim_while = self.verificaFimWhile(contador)
-        self.traducao.append("DVSF L2")
         contador = self.code_parser(contador, 0, fim_while)
+        self.traducao.append("DSVS L" + str(label))
         self.traducao.append("L" + str(self.label_count) + " FIM_WHILE")
+        self.traducao.insert(index, "DSVF L" + str(self.label_count))
         self.label_count += 1
         return contador
 
