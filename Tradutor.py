@@ -195,7 +195,7 @@ class Tradutor:
             
             if qtde_parametros > 0:
                 while self.tokens[contador][1] != ';':
-                    if self.tokens[contador][2] == "Identificador":
+                    if (self.tokens[contador][2] == "Identificador") or (self.tokens[contador][2] == "Constante Numerica"):
                         if self.verificaExpressaoMatematica(contador, ','):
                             contador = self.setAssemblyExpressao(contador,',') - 1
                             
